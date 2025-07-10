@@ -1,0 +1,78 @@
+✅ 目前已完成的背景（快速回顧）
+整體架構是三機制模組化：
+
+🔍 觀察機（Observer Engine）
+
+任務：自動掃描 token 支援 LSD / restake、抓即時價格資料
+
+現況：已建立初步 token list（ETH, SOL, stETH, stSOL...），也做過 LSD 支援檢查邏輯
+
+🧠 分析機（Analyzer Engine）
+
+任務：偵測「低估進場訊號」：質押支持、有價差、潛在套利點
+
+現況：準備導入簡單「價格低於過去平均值」等判斷
+
+🤖 下單機（Execution Engine）
+
+任務：發出訊號（或整合 webhook），最終可接到交易 API 自動下單
+
+現況：尚未實作，但你提過先以「訊號通知」形式為主
+
+🧠 下一步建議（照你剛剛說的，從觀察機開始強化）
+✅ 接下來這一步：建立觀察機的模組化結構 v1.0
+我會建立：
+
+bash
+複製
+編輯
+observer_engine/
+├── __init__.py
+├── token_list.py         # 負責維護可觀察的 token 資料
+├── fetch_price.py        # 從 Coingecko 抓價格（或你指定的 API）
+├── fetch_lsd_support.py  # 判斷是否支援 LSD / Restake（資料對照或 API）
+然後你就可以這樣用：
+
+python
+複製
+編輯
+from observer_engine import get_token_snapshot
+
+snapshot = get_token_snapshot()
+print(snapshot)
+這樣會印出：
+
+json
+複製
+編輯
+[
+  {
+    "symbol": "ETH",
+    "price": 3410.51,
+    "support_lsd": True,
+    "lst_tokens": ["stETH", "rETH"],
+    ...
+  },
+  ...
+]
+📦 額外附加功能（會逐步加進來）
+功能	說明
+儲存每日 snapshot	存成 JSON / SQLite / Google Sheet
+自動排程（每 10 分鐘）	可使用 APScheduler、cron、或 Colab 迴圈
+顯示價格與 staking 年利率	可從 Lido / Binance Earn / DefiLlama 抓資料
+建立篩選條件	ex. 支援 LSD + 過去 30 天低點 + 流動性 > 門檻
+
+📌 問你 2 個設計小細節
+你希望資料儲存在本地 JSON 還是 SQLite？
+
+JSON 好處是可以快速看、易讀
+
+SQLite 方便之後做分析與整合（推薦）
+
+你目前預計用 Colab、Replit 還是 VS Code 本機跑？
+
+我會依照你的平台提供相容範例（特別是排程跟資料存路徑會差）
+
+只要你點頭，我馬上幫你建立 observer_engine/ 第一版模組，並提供你 .ipynb（Colab 用）、或 .py 套件版本（VSCode 用）。
+
+你要選哪種？（也可以兩種都給你）
